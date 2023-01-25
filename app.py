@@ -5,7 +5,6 @@ import pickle
 import numpy as np
 import pandas as pd
 import json
-import requests
 
 model = pickle.load(
     open('C:/xampp/htdocs/web_klasifikasi/model/model.pkl', 'rb'))
@@ -55,7 +54,7 @@ class KlasifikasiAPI(Resource):
         # if request.method == "POST":
         args = parserBodyKlasifikasi.parse_args()
         jawaban = args["jawaban"]
-        klasifikasi = model.predict(load_vec.transform(np.ndarray([jawaban])))
+        klasifikasi = model.predict(load_vec.transform([jawaban]))
         hasil = LogKlasifikasi(
                 jawaban=jawaban,
                 klasifikasi=klasifikasi,
@@ -63,11 +62,11 @@ class KlasifikasiAPI(Resource):
         db.session.add(hasil)
         db.session.commit()
 
-        return {
-                'Data Jawaban': jawaban,
-                'Data Klasifikasi': klasifikasi,
-                'message': f"Data jawaban berhasil masuk!"
-        }
+        return jsonify({
+            'Data Jawaban': jawaban,
+            'Data Klasifikasi': klasifikasi,
+            'message': f"Data jawaban berhasil masuk!"
+        })
 
 
 if __name__ == '__main__':
