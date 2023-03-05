@@ -12,8 +12,9 @@ sklearn = "*"
 pandas = "*"
 scikit-metrics = "*"
 naive-bayes = "*"
-flask-sqlalchemy = "*"
 requests = "*"
+flask-mysqldb = "*"
+pyopenssl = "*"
 
 [dev-packages]
 

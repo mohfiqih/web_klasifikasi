@@ -20,8 +20,8 @@ mysql = MySQL(app)
 
 # ARGS
 parserParamJawaban = reqparse.RequestParser()
-parserParamJawaban.add_argument(
-    'id_respon', type=str, help='Masukan ID Respon', location='args')
+# parserParamJawaban.add_argument(
+#     'id_respon', type=str, help='Masukan ID Respon', location='args')
 parserParamJawaban.add_argument(
     'id_identitas', type=str, help='Masukan ID Identitas', location='args')
 parserParamJawaban.add_argument(
@@ -32,8 +32,6 @@ parserParamJawaban.add_argument(
     'sebagai', type=str, help='Sebagai', location='args')
 parserParamJawaban.add_argument(
     'gender', type=str, help='Gender', location='args')
-parserParamJawaban.add_argument(
-    'paket_id', type=str, help='ID Paket', location='args')
 parserParamJawaban.add_argument(
     'pertanyaan', type=str, help='Pertanyaan', location='args')
 parserParamJawaban.add_argument(
@@ -50,8 +48,6 @@ parserBodyJawaban.add_argument(
     'sebagai', type=str, help='Sebagai', location='args')
 parserBodyJawaban.add_argument(
     'gender', type=str, help='Gender', location='args')
-parserBodyJawaban.add_argument(
-    'paket_id', type=str, help='ID Paket', location='args')
 parserBodyJawaban.add_argument(
     'pertanyaan', type=str, help='Pertanyaan', location='args')
 parserBodyJawaban.add_argument(
@@ -87,11 +83,10 @@ class KlasifikasiAPI(Resource):
                     "Prodi": row[3],
                     "Sebagai": row[4],
                     "Gender": row[5],
-                    "ID Paket": row[6],
-                    "Pertanyaan": row[7],
-                    "Jawaban": row[8],
-                    "Hasil": row[9],
-                    "Datecreated": row[10],
+                    "Pertanyaan": row[6],
+                    "Jawaban": row[7],
+                    "Hasil": row[8],
+                    "Datecreated": row[9],
                 })
             return jsonify(wadah)
 
@@ -124,19 +119,14 @@ class KlasifikasiAPI(Resource):
 
 
             # id_respon = args["id_respon"]
+            
             # id_paket_jawaban = args["id_paket_jawaban"]
             # id_soal_jawaban = args["id_soal_jawaban"]
-
-            # join = get.execute(''' SELECT daftar_soal.id_soal, daftar_soal.paket_id from daftar_soal ''')
-
-            
-
             id_identitas = args["id_identitas"]
             nama_lengkap = args["nama_lengkap"]
             prodi = args["prodi"]
             sebagai = args["sebagai"]
             gender = args["gender"]
-            paket_id = args["paket_id"]
             pertanyaan = args["pertanyaan"]
             jawaban = args["jawaban"]
             klas = model.predict(load_vec.transform([jawaban]))
@@ -147,14 +137,11 @@ class KlasifikasiAPI(Resource):
             datecreated = date_time.strftime("%d-%m-%Y, %H:%M:%S")
 
             cur = mysql.connection.cursor()
-
-            join = cur.execute(''' SELECT paket_soal.id_paket = daftar_soal.paket_id FROM paket_soal, daftar_soal GROUP BY id_soal ORDER BY id_soal ''')
-            
             # cur.execute(''' INSERT INTO jawaban VALUES(%s,%s,%s,%s,%s,%s,%s,%s) ''', (id, id_respon,
             #             id_identitas, id_paket_jawaban, id_soal_jawaban, jawaban, klasifikasi, tanggal))
             # mysql.connection.commit()
-            cur.execute(''' INSERT INTO kuesioner VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) ''', (id,
-                        id_identitas, nama_lengkap, prodi, sebagai, gender, paket_id, pertanyaan, jawaban, hasil, datecreated))
+            cur.execute(''' INSERT INTO kuesioner VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) ''', (id,
+                        id_identitas, nama_lengkap, prodi, sebagai, gender, pertanyaan, jawaban, hasil, datecreated))
             cur.close()
 
             return {
@@ -165,7 +152,7 @@ class KlasifikasiAPI(Resource):
                 'Gender': gender,
                 'Pertanyaan': pertanyaan,
                 'Jawaban': jawaban,
-                'Hasil': hasil.tolist(),
+                'Hasil': hasil,
                 'Datecreated': datecreated,
                 'message': f"Data jawaban berhasil masuk!"
             }
@@ -220,4 +207,4 @@ class KlasifikasiAPI(Resource):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, ssl_context='adhoc')
+    app.run(debug=True, host="localhost")
