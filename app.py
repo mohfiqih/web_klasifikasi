@@ -148,13 +148,14 @@ class KlasifikasiAPI(Resource):
 
             cur = mysql.connection.cursor()
 
-            join = cur.execute(''' SELECT paket_soal.id_paket = daftar_soal.paket_id FROM paket_soal, daftar_soal GROUP BY id_soal ORDER BY id_soal ''')
+            # join = cur.execute(''' SELECT paket_soal.id_paket = daftar_soal.paket_id FROM paket_soal, daftar_soal GROUP BY id_soal ORDER BY id_soal ''')
             
             # cur.execute(''' INSERT INTO jawaban VALUES(%s,%s,%s,%s,%s,%s,%s,%s) ''', (id, id_respon,
             #             id_identitas, id_paket_jawaban, id_soal_jawaban, jawaban, klasifikasi, tanggal))
-            # mysql.connection.commit()
+            # 
             cur.execute(''' INSERT INTO kuesioner VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) ''', (id,
                         id_identitas, nama_lengkap, prodi, sebagai, gender, paket_id, pertanyaan, jawaban, hasil, datecreated))
+            mysql.connection.commit()
             cur.close()
 
             return {
@@ -220,4 +221,4 @@ class KlasifikasiAPI(Resource):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, ssl_context='adhoc')
+    app.run(debug=True, ssl_context='adhoc', host='localhost')
