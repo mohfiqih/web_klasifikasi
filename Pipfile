@@ -15,6 +15,9 @@ naive-bayes = "*"
 requests = "*"
 flask-mysqldb = "*"
 pyopenssl = "*"
+flask-cors = "*"
+flask-sqlalchemy = "*"
+sqlalchemy = "*"
 
 [dev-packages]
 
