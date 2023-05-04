@@ -95,33 +95,6 @@ class KlasifikasiAPI(Resource):
         if request.method == 'POST':
             args = parserBodyJawaban.parse_args()
 
-            # order_by = cur.execute('''SELECT * FROM daftar_soal ORDER BY id_soal''', 'asc')
-            # # id_soal = cur.execute(''' SELECT * FROM daftar_soal WHERE paket_id ''')
-            # data = []
-            # foreach(order_by as row){
-            #     data.append(
-            #         "ID": row[0],
-            #         "ID Respon": row[1],
-            #         "ID Identitas": row[2],
-            #         "ID Paket": row[3],
-            #         "ID Soal": row[4],
-            #         "Jawaban": row[5],
-            #         "Klasifikasi": row[6],
-            #         "Tanggal": row[7],
-            #     )
-            # }
-            # get = mysql.connection.cursor()
-
-            # join = get.execute('''SELECT responden.id_respon, responden.id_identitas, responden.paket_id_responden, paket_soal.id_paket, daftar_soal.paket_id, daftar_soal.id_soal FROM responden, paket_soal, daftar_soal''')
-            # # join_responden = get.execute('''SELECT paket_soal.id_paket, responden.paket_id_responden FROM paket_soal, responden''')
-            # order_by = get.execute('''SELECT * FROM daftar_soal ORDER BY id_soal''')
-            # group_by = get.execute('''SELECT * FROM daftar_soal GROUP BY id_soal ASC''')
-
-
-            # id_respon = args["id_respon"]
-            
-            # id_paket_jawaban = args["id_paket_jawaban"]
-            # id_soal_jawaban = args["id_soal_jawaban"]
             id_identitas = args["id_identitas"]
             nama_lengkap = args["nama_lengkap"]
             prodi = args["prodi"]
@@ -137,9 +110,6 @@ class KlasifikasiAPI(Resource):
             datecreated = date_time.strftime("%d-%m-%Y, %H:%M:%S")
 
             cur = mysql.connection.cursor()
-            # cur.execute(''' INSERT INTO jawaban VALUES(%s,%s,%s,%s,%s,%s,%s,%s) ''', (id, id_respon,
-            #             id_identitas, id_paket_jawaban, id_soal_jawaban, jawaban, klasifikasi, tanggal))
-            # mysql.connection.commit()
             cur.execute(''' INSERT INTO kuesioner VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) ''', (id,
                         id_identitas, nama_lengkap, prodi, sebagai, gender, pertanyaan, jawaban, hasil, datecreated))
             cur.close()
@@ -156,17 +126,6 @@ class KlasifikasiAPI(Resource):
                 'Datecreated': datecreated,
                 'message': f"Data jawaban berhasil masuk!"
             }
-
-            # return {
-            #     'ID Responden': id_respon,
-            #     'ID Identitas': id_identitas,
-            #     'ID Paket': id_paket_jawaban,
-            #     'ID Soal': id_soal_jawaban,
-            #     'Jawaban': jawaban,
-            #     'Klasifikasi': klasifikasi.tolist(),
-            #     'Tanggal': tanggal,
-            #     'message': f"Data jawaban berhasil masuk!"
-            # }
 
 
 # # ---------------- Test ------------------ #

@@ -13,12 +13,12 @@ app = Flask(__name__)
 api = Api(app, title='API Repository', default='API',
           default_label='Repository Kuesioner')
 
-# app.config['MYSQL_HOST'] = 'localhost'
-# app.config['MYSQL_USER'] = 'root'
-# app.config['MYSQL_PASSWORD'] = ''
-# app.config['MYSQL_DB'] = 'repository_skripsi'
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = ''
+app.config['MYSQL_DB'] = 'repository_skripsi'
 
-# mysql = MySQL(app)
+mysql = MySQL(app)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = 'mysql://root:@127.0.0.1:3306/repository_skripsi'
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -51,9 +51,9 @@ class Klasifikasi(db.Model):
     gender = db.Column(db.String(500), nullable=False)
     id_paket_jawaban = db.Column(db.String(500), nullable=False)
     jawaban = db.Column(db.String(500), nullable=False)
-    klasifikasi = db.Column(db.String(500), nullable=False)
+    label = db.Column(db.String(500), nullable=False)
 
-    def __init__(self, id_identitas, nama_lengkap, prodi, sebagai, gender, id_paket_jawaban, jawaban, klasifikasi):
+    def __init__(self, id_identitas, nama_lengkap, prodi, sebagai, gender, id_paket_jawaban, jawaban, label):
         self.id_identitas = id_identitas
         self.nama_lengkap = nama_lengkap
         self.prodi = prodi
@@ -61,7 +61,7 @@ class Klasifikasi(db.Model):
         self.gender = gender
         self.id_paket_jawaban = id_paket_jawaban
         self.jawaban = jawaban
-        self.klasifikasi = klasifikasi
+        self.label = label
 
 
 @api.route('/testApi', methods=['POST'])
@@ -79,7 +79,7 @@ class TestAPI(Resource):
             id_paket_jawaban = request.form['id_paket_jawaban']
             jawaban = request.form['jawaban']
             klas = model.predict(load_vec.transform([jawaban]))
-            klasifikasi = np.array(klas)
+            label = np.array(klas[0])
 
             test = Klasifikasi(
                 id_identitas=id_identitas,
@@ -89,7 +89,7 @@ class TestAPI(Resource):
                 gender=gender,
                 id_paket_jawaban=id_paket_jawaban,
                 jawaban=jawaban,
-                klasifikasi=klasifikasi
+                label=label
             )
             db.session.add(test)
             db.session.commit()
@@ -102,7 +102,7 @@ class TestAPI(Resource):
                 'gender': gender,
                 'id_paket_jawaban': id_paket_jawaban,
                 'jawaban': jawaban,
-                'klasifikasi': klasifikasi.tolist(),
+                'label': label.tolist(),
                 'message': f"Data jawaban berhasil masuk!"
             })
 
@@ -121,201 +121,95 @@ class TestAPI(Resource):
     #             })
     #         return data
 
+@app.route('/postData', methods=['GET', 'POST'])
+def post():
+    if request.method == 'POST':
+        id_identitas = request.form['id_identitas']
+        nama_lengkap = request.form['nama_lengkap']
+        prodi = request.form['prodi']
+        sebagai = request.form['sebagai']
+        gender = request.form['gender']
+        id_paket_jawaban = request.form['id_paket_jawaban']
+        jawaban = request.form['jawaban']
+        # label = request.form['label']
+            
+        klas = model.predict(load_vec.transform([jawaban]))
+        label = np.array(klas[0])
+            
+        cursor = mysql.connection.cursor()
+        cursor.execute(''' INSERT INTO klasifikasi VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s) ''', (id, id_identitas, nama_lengkap, prodi, sebagai, gender, id_paket_jawaban, jawaban, label.tolist()))
+        mysql.connection.commit()
 
-# # ARGS
-# parserParamJawaban = reqparse.RequestParser()
-# parserParamJawaban.add_argument(
-#     'id_respon', type=str, help='Masukan ID Respon', location='args')
-# parserParamJawaban.add_argument(
-#     'id_identitas', type=str, help='Masukan ID Identitas', location='args')
-# parserParamJawaban.add_argument(
-#     'nama_lengkap', type=str, help='Masukan Nama Lengkap', location='args')
-# parserParamJawaban.add_argument(
-#     'prodi', type=str, help='Masukan Prodi', location='args')
-# parserParamJawaban.add_argument(
-#     'sebagai', type=str, help='Sebagai', location='args')
-# parserParamJawaban.add_argument(
-#     'gender', type=str, help='Gender', location='args')
-# parserParamJawaban.add_argument(
-#     'paket_id', type=str, help='ID Paket', location='args')
-# parserParamJawaban.add_argument(
-#     'pertanyaan', type=str, help='Pertanyaan', location='args')
-# parserParamJawaban.add_argument(
-#     'jawaban', type=str, help='Jawaban', location='args')
+        return {
+                'Identitas': id_identitas,
+                'Nama Lengkap': nama_lengkap,
+                'Prodi': prodi,
+                'Sebagai': sebagai,
+                'Gender': gender,
+                'id_paket_jawaban': id_paket_jawaban,
+                'Jawaban': jawaban,
+                'label': label.tolist(),
+                'message': f"Data jawaban berhasil masuk!"
+        }
+            
+    return "Hallo, Route Utama! API Siap Pakai!"
 
-# parserBodyJawaban = reqparse.RequestParser()
-# parserBodyJawaban.add_argument(
-#     'id_identitas', type=str, help='Masukan ID Identitas', location='json')
-# parserBodyJawaban.add_argument(
-#     'nama_lengkap', type=str, help='Masukan Nama Lengkap', location='json')
-# parserBodyJawaban.add_argument(
-#     'prodi', type=str, help='Masukan Prodi', location='json')
-# parserBodyJawaban.add_argument(
-#     'sebagai', type=str, help='Sebagai', location='json')
-# parserBodyJawaban.add_argument(
-#     'gender', type=str, help='Gender', location='json')
-# parserBodyJawaban.add_argument(
-#     'paket_id', type=str, help='ID Paket', location='json')
-# parserBodyJawaban.add_argument(
-#     'pertanyaan', type=str, help='Pertanyaan', location='json')
-# parserBodyJawaban.add_argument(
-#     'jawaban', type=str, help='Jawaban', location='json')
+@app.route('/getData')
+def getData():
+        cur = mysql.connection.cursor()
+        cur.execute(''' SELECT * FROM klasifikasi ''')
+        data = cur.fetchall()
 
-# #
+        if (data is None):
+            return f"Tidak Ada Data!"
+        else:
+            wadah = []
+            for row in data:
+                wadah.append({
+                    "ID": row[0],
+                    "ID Identitas": row[1],
+                    "Nama Lengkap": row[2],
+                    "Prodi": row[3],
+                    "Sebagai": row[4],
+                    "Gender": row[5],
+                    "Pertanyaan": row[6],
+                    "Jawaban": row[7],
+                    "Hasil": row[8],
+                    "Datecreated": row[9],
+                })
+            return wadah
 
-# # Klasifikasi
-# @api.route('/klasifikasi', methods=["GET", "POST"])
-# class KlasifikasiAPI(Resource):
-#     def get(self):
-#         cur = mysql.connection.cursor()
-#         cur.execute(''' SELECT * FROM kuesioner ''')
-#         data = cur.fetchall()
-#         if (data is None):
-#             return f"Tidak Ada Data!"
-#         else:
-#             # return jsonify(data)
-#             wadah = []
-#             for row in data:
-#                 wadah.append({
-#                     "ID": row[0],
-#                     # "ID Respon": row[1],
-#                     "ID Identitas": row[1],
-#                     "Nama Lengkap": row[2],
-#                     "Prodi": row[3],
-#                     "Sebagai": row[4],
-#                     "Gender": row[5],
-#                     "ID Paket": row[6],
-#                     "Pertanyaan": row[7],
-#                     "Jawaban": row[8],
-#                     "Hasil": row[9],
-#                     "Datecreated": row[10],
-#                 })
-#             return jsonify(wadah)
+# @app.route('/send', methods=['GET', 'POST'])
+# def send():
+#     if request.method == 'POST':
+#         id_identitas = request.form['id_identitas']
+#         nama_lengkap = request.form['nama_lengkap']
+#         prodi = request.form['prodi']
+#         sebagai = request.form['sebagai']
+#         gender = request.form['gender']
+#         id_paket_jawaban = request.form['id_paket_jawaban']
+#         jawaban = request.form['jawaban']
+#         label = request.form['label']
 
-#     @api.expect(parserBodyJawaban)
-#     def post(self):
-#         if request.method == 'POST':
-#             args = parserBodyJawaban.parse_args()
+#         cursor = mysql.connection.cursor()
+#         cursor.execute(''' INSERT INTO klasifikasi VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s) ''', (id, id_identitas, nama_lengkap, prodi, sebagai, gender, id_paket_jawaban, jawaban, label))
+#         mysql.connection.commit()
+        
+#         return 'Berhasil Kirim Data!'
 
-#             # order_by = cur.execute('''SELECT * FROM daftar_soal ORDER BY id_soal''', 'asc')
-#             # # id_soal = cur.execute(''' SELECT * FROM daftar_soal WHERE paket_id ''')
-#             # data = []
-#             # foreach(order_by as row){
-#             #     data.append(
-#             #         "ID": row[0],
-#             #         "ID Respon": row[1],
-#             #         "ID Identitas": row[2],
-#             #         "ID Paket": row[3],
-#             #         "ID Soal": row[4],
-#             #         "Jawaban": row[5],
-#             #         "Klasifikasi": row[6],
-#             #         "Tanggal": row[7],
-#             #     )
-#             # }
-#             # get = mysql.connection.cursor()
+#     return "Hallo, Route Utama! API Siap Pakai!"
+#         # if not user:
+        #     return f'Email {email} tidak Ada!', 400
+        # else:
+        #     user = user[0]
 
-#             # join = get.execute('''SELECT responden.id_respon, responden.id_identitas, responden.paket_id_responden, paket_soal.id_paket, daftar_soal.paket_id, daftar_soal.id_soal FROM responden, paket_soal, daftar_soal''')
-#             # # join_responden = get.execute('''SELECT paket_soal.id_paket, responden.paket_id_responden FROM paket_soal, responden''')
-#             # order_by = get.execute('''SELECT * FROM daftar_soal ORDER BY id_soal''')
-#             # group_by = get.execute('''SELECT * FROM daftar_soal GROUP BY id_soal ASC''')
-
-#             # id_respon = args["id_respon"]
-#             # id_paket_jawaban = args["id_paket_jawaban"]
-#             # id_soal_jawaban = args["id_soal_jawaban"]
-
-#             # join = get.execute(''' SELECT daftar_soal.id_soal, daftar_soal.paket_id from daftar_soal ''')
-
-#             id_identitas = args["id_identitas"]
-#             nama_lengkap = args["nama_lengkap"]
-#             prodi = args["prodi"]
-#             sebagai = args["sebagai"]
-#             gender = args["gender"]
-#             paket_id = args["paket_id"]
-#             pertanyaan = args["pertanyaan"]
-#             jawaban = args["jawaban"]
-#             klas = model.predict(load_vec.transform([jawaban]))
-#             hasil = np.array(klas)
-
-#             timestamp = 1674996979.12913
-#             date_time = datetime.fromtimestamp(timestamp)
-#             datecreated = date_time.strftime("%d-%m-%Y, %H:%M:%S")
-
-#             cur = mysql.connection.cursor()
-
-#             # join = cur.execute(''' SELECT paket_soal.id_paket = daftar_soal.paket_id FROM paket_soal, daftar_soal GROUP BY id_soal ORDER BY id_soal ''')
-
-#             # cur.execute(''' INSERT INTO jawaban VALUES(%s,%s,%s,%s,%s,%s,%s,%s) ''', (id, id_respon,
-#             #             id_identitas, id_paket_jawaban, id_soal_jawaban, jawaban, klasifikasi, tanggal))
-#             #
-#             cur.execute(''' INSERT INTO kuesioner VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) ''', (id,
-#                         id_identitas, nama_lengkap, prodi, sebagai, gender, paket_id, pertanyaan, jawaban, hasil, datecreated))
-#             mysql.connection.commit()
-#             cur.close()
-
-#             return {
-#                 'Identitas': id_identitas,
-#                 'Nama Lengkap': nama_lengkap,
-#                 'Prodi': prodi,
-#                 'Sebagai': sebagai,
-#                 'Gender': gender,
-#                 'Pertanyaan': pertanyaan,
-#                 'Jawaban': jawaban,
-#                 'Hasil': hasil.tolist(),
-#                 'Datecreated': datecreated,
-#                 'message': f"Data jawaban berhasil masuk!"
-#             }
-
-############################ Salah ##############################
-# return {
-#     'ID Responden': id_respon,
-#     'ID Identitas': id_identitas,
-#     'ID Paket': id_paket_jawaban,
-#     'ID Soal': id_soal_jawaban,
-#     'Jawaban': jawaban,
-#     'Klasifikasi': klasifikasi.tolist(),
-#     'Tanggal': tanggal,
-#     'message': f"Data jawaban berhasil masuk!"
-# }
-
-# # ---------------- Test ------------------ #
-# parserParamTest = reqparse.RequestParser()
-# parserParamTest.add_argument(
-#     'jawaban', type=str, help='Masukan Jawaban Anda', location='args')
-
-# parserBodyTest = reqparse.RequestParser()
-# parserBodyTest.add_argument(
-#     'jawaban', type=str, help='Masukan Jawaban Anda', location='args')
-
-
-# @api.route('/Klasifikasi', methods=["GET", "POST"])
-# class TestingNB(Resource):
-#     @api.expect(parserBodyTest)
-#     def post(self):
-#         if request.method == 'POST':
-#             args = parserBodyTest.parse_args()
-
-#             jawaban = args["jawaban"]
-#             klas = model.predict(load_vec.transform([jawaban]))
-#             klasifikasi = np.array(klas)
-
-#             # timestamp = 1674996979.12913
-#             # date_time = datetime.fromtimestamp(timestamp)
-#             # tanggal = date_time.strftime("%d-%m-%Y, %H:%M:%S")
-
-#             cur = mysql.connection.cursor()
-#             cur.execute(''' INSERT INTO testing VALUES(%s,%s,%s) ''',
-#                         (id, jawaban, klasifikasi))
-#             mysql.connection.commit()
-#             cur.close()
-
-#             return {
-#                 'Jawaban': jawaban,
-#                 'Klasifikasi': klasifikasi.tolist(),
-#                 # 'Tanggal': tanggal,
-#                 # 'message': f"Data jawaban berhasil masuk!"
-#             }
-
+        # if email:
+        #     return {
+        #         'email': user.email,
+        #         'nama': user.name,
+        #         # 'tanggal': user.created_at
+        #     }
 
 if __name__ == '__main__':
-    # app.run(debug=True, ssl_context='adhoc', host='localhost')
+    # app.run(debug=True, ssl_context='adhoc')
     app.run(debug=True)
