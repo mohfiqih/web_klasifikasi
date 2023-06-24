@@ -20,11 +20,11 @@ app.config['MYSQL_DB'] = 'repository_skripsi'
 
 mysql = MySQL(app)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = 'mysql://root:@127.0.0.1:3306/repository_skripsi'
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SQLALCHEMY_ECHO"] = True
+# app.config["SQLALCHEMY_DATABASE_URI"] = 'mysql://root:@127.0.0.1:3306/repository_skripsi'
+# app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+# app.config["SQLALCHEMY_ECHO"] = True
 
-db = SQLAlchemy(app)
+# db = SQLAlchemy(app)
 # CORS(app)
 
 # Load Model
@@ -42,69 +42,69 @@ parserBodyTest.add_argument(
     'jawaban', type=str, help='Masukan Jawaban Anda', required=True)
 
 
-class Klasifikasi(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    id_identitas = db.Column(db.String(500), nullable=False)
-    nama_lengkap = db.Column(db.String(500), nullable=False)
-    prodi = db.Column(db.String(500), nullable=False)
-    sebagai = db.Column(db.String(500), nullable=False)
-    gender = db.Column(db.String(500), nullable=False)
-    id_paket_jawaban = db.Column(db.String(500), nullable=False)
-    jawaban = db.Column(db.String(500), nullable=False)
-    label = db.Column(db.String(500), nullable=False)
+# class Klasifikasi(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     id_identitas = db.Column(db.String(500), nullable=False)
+#     nama_lengkap = db.Column(db.String(500), nullable=False)
+#     prodi = db.Column(db.String(500), nullable=False)
+#     sebagai = db.Column(db.String(500), nullable=False)
+#     gender = db.Column(db.String(500), nullable=False)
+#     id_paket_jawaban = db.Column(db.String(500), nullable=False)
+#     jawaban = db.Column(db.String(500), nullable=False)
+#     label = db.Column(db.String(500), nullable=False)
 
-    def __init__(self, id_identitas, nama_lengkap, prodi, sebagai, gender, id_paket_jawaban, jawaban, label):
-        self.id_identitas = id_identitas
-        self.nama_lengkap = nama_lengkap
-        self.prodi = prodi
-        self.sebagai = sebagai
-        self.gender = gender
-        self.id_paket_jawaban = id_paket_jawaban
-        self.jawaban = jawaban
-        self.label = label
+#     def __init__(self, id_identitas, nama_lengkap, prodi, sebagai, gender, id_paket_jawaban, jawaban, label):
+#         self.id_identitas = id_identitas
+#         self.nama_lengkap = nama_lengkap
+#         self.prodi = prodi
+#         self.sebagai = sebagai
+#         self.gender = gender
+#         self.id_paket_jawaban = id_paket_jawaban
+#         self.jawaban = jawaban
+#         self.label = label
 
 
-@api.route('/testApi', methods=['POST'])
-class TestAPI(Resource):
-    # @api.expect(parserBodyTest)
-    def post(self):
-        # if request.method == 'POST':
-            # args = parserBodyTest.parse_args()
-            id_identitas = request.form['id_identitas']
-            nama_lengkap = request.form['nama_lengkap']
-            prodi = request.form['prodi']
-            sebagai = request.form['sebagai']
-            gender = request.form['gender']
+# @api.route('/testApi', methods=['POST'])
+# class TestAPI(Resource):
+#     # @api.expect(parserBodyTest)
+#     def post(self):
+#         # if request.method == 'POST':
+#             # args = parserBodyTest.parse_args()
+#             id_identitas = request.form['id_identitas']
+#             nama_lengkap = request.form['nama_lengkap']
+#             prodi = request.form['prodi']
+#             sebagai = request.form['sebagai']
+#             gender = request.form['gender']
             
-            id_paket_jawaban = request.form['id_paket_jawaban']
-            jawaban = request.form['jawaban']
-            klas = model.predict(load_vec.transform([jawaban]))
-            label = np.array(klas[0])
+#             id_paket_jawaban = request.form['id_paket_jawaban']
+#             jawaban = request.form['jawaban']
+#             klas = model.predict(load_vec.transform([jawaban]))
+#             # label = np.array(klas[0])
 
-            test = Klasifikasi(
-                id_identitas=id_identitas,
-                nama_lengkap=nama_lengkap,
-                prodi=prodi,
-                sebagai=sebagai,
-                gender=gender,
-                id_paket_jawaban=id_paket_jawaban,
-                jawaban=jawaban,
-                label=label
-            )
-            db.session.add(test)
-            db.session.commit()
+#             test = Klasifikasi(
+#                 id_identitas=id_identitas,
+#                 nama_lengkap=nama_lengkap,
+#                 prodi=prodi,
+#                 sebagai=sebagai,
+#                 gender=gender,
+#                 id_paket_jawaban=id_paket_jawaban,
+#                 jawaban=jawaban,
+#                 label=klas
+#             )
+#             db.session.add(test)
+#             db.session.commit()
 
-            return json.dumps({
-                'id_identitas': id_identitas,
-                'nama_lengkap': nama_lengkap,
-                'prodi': prodi,
-                'sebagai': sebagai,
-                'gender': gender,
-                'id_paket_jawaban': id_paket_jawaban,
-                'jawaban': jawaban,
-                'label': label.tolist(),
-                'message': f"Data jawaban berhasil masuk!"
-            })
+#             return json.dumps({
+#                 'id_identitas': id_identitas,
+#                 'nama_lengkap': nama_lengkap,
+#                 'prodi': prodi,
+#                 'sebagai': sebagai,
+#                 'gender': gender,
+#                 'id_paket_jawaban': id_paket_jawaban,
+#                 'jawaban': jawaban,
+#                 'label': label.tolist(),
+#                 'message': f"Data jawaban berhasil masuk!"
+#             })
 
     # def get(self):
     #     log_data = db.session.execute(
@@ -131,7 +131,6 @@ def post():
         gender = request.form['gender']
         id_paket_jawaban = request.form['id_paket_jawaban']
         jawaban = request.form['jawaban']
-        # label = request.form['label']
             
         klas = model.predict(load_vec.transform([jawaban]))
         label = np.array(klas[0])
@@ -151,33 +150,55 @@ def post():
                 'label': label.tolist(),
                 'message': f"Data jawaban berhasil masuk!"
         }
-            
-    return "Hallo, Route Utama! API Siap Pakai!"
-
-@app.route('/getData')
-def getData():
+        
+    if request.method == 'GET':
         cur = mysql.connection.cursor()
         cur.execute(''' SELECT * FROM klasifikasi ''')
         data = cur.fetchall()
-
         if (data is None):
-            return f"Tidak Ada Data!"
+                return f"Tidak Ada Data!"
         else:
             wadah = []
             for row in data:
                 wadah.append({
-                    "ID": row[0],
-                    "ID Identitas": row[1],
-                    "Nama Lengkap": row[2],
-                    "Prodi": row[3],
-                    "Sebagai": row[4],
-                    "Gender": row[5],
-                    "Pertanyaan": row[6],
-                    "Jawaban": row[7],
-                    "Hasil": row[8],
-                    "Datecreated": row[9],
-                })
+                        "ID": row[0],
+                        "ID Identitas": row[1],
+                        "Nama Lengkap": row[2],
+                        "Prodi": row[3],
+                        "Sebagai": row[4],
+                        "Gender": row[5],
+                        "Id Paket": row[6],
+                        "Jawaban": row[7],
+                        "Label": row[8],
+                    })
             return wadah
+            
+    # return "Hallo, Route Utama! API Siap Pakai!"
+
+# @app.route('/getData')
+# def getData():
+#         cur = mysql.connection.cursor()
+#         cur.execute(''' SELECT * FROM klasifikasi ''')
+#         data = cur.fetchall()
+
+#         if (data is None):
+#             return f"Tidak Ada Data!"
+#         else:
+#             wadah = []
+#             for row in data:
+#                 wadah.append({
+#                     "ID": row[0],
+#                     "ID Identitas": row[1],
+#                     "Nama Lengkap": row[2],
+#                     "Prodi": row[3],
+#                     "Sebagai": row[4],
+#                     "Gender": row[5],
+#                     "Pertanyaan": row[6],
+#                     "Jawaban": row[7],
+#                     "Hasil": row[8],
+#                     "Datecreated": row[9],
+#                 })
+#             return wadah
 
 # @app.route('/send', methods=['GET', 'POST'])
 # def send():
